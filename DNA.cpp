@@ -134,37 +134,40 @@ float calcStdDev(float calculatedVariance){
   @return DNA string of 1000 strings calculated from Gaussian value
 */
 string calcGaussian(){
-
-  // calculations to compute random values using RAND_MAX function
-  float randA = (float) rand() / (float)RAND_MAX;
-  float randB = (float) rand() / (float)RAND_MAX;
-  float randC = sqrt(-2 * log(randA)) * cos(2 * M_PI * randB);
-  float randD = (sqrt(variance) * randC) + meanNum;
   string lineString = "";
+  float randD;
+  // equations for gaussian
+  float CaProb = (float(numC) + float(numA))/ sumBigram;
+  float CgProb = (float(numC) + float(numA) + float(numG))/ float(sumBigram);
 
   // iterate up  to 1000 times
   for(int i = 0; i < 1000; ++i){
-    aGaussian = randD * aProb;
-    cGaussian = randD * cProb;
-    tGaussian = randD * tProb;
-    gGaussian = randD * gProb;
+    // calculations to compute random values using RAND_MAX function
+    float randA = (float) rand() / (double)RAND_MAX;
+    float randB = (float) rand() / (double)RAND_MAX;
+    float randC = sqrt(-2 * log(randA)) * cos(2 * M_PI * randB);
+    randD = (sqrt(variance) * randC) + meanNum;
 
-    for(int j = 0; j < aGaussian; ++j){
-      lineString += "a";
-    }
-    for(int k = 0; k < cGaussian; ++k){
-      lineString += "c";
-    }
-    for(int l = 0; l < tGaussian; ++l){
-      lineString += "t";
-    }
-    for(int m = 0; m < gGaussian; ++m){
-      lineString += "g";
+    // append nucloetides to string
+    for(int i = 0; i < randD; ++i){
+      float random = rand() / (double)RAND_MAX;
+      if(random < aProb){
+        lineString += "a";
+      }
+      else if(random < CaProb && random >= aProb){
+        lineString += "c";
+      }
+      else if(random < CgProb && random >= CaProb){
+        lineString += "t";
+      }
+      else if(random <= 1 && random >= CgProb){
+        lineString += "g";
+      }
     }
   }
-
-  // print Gaussian value to output file
+  // print Gaussian value
   outputFile << "Gaussian value: " << randD << endl;
+  // print Gaussian value to output file
   return lineString;
 }
 
@@ -287,7 +290,7 @@ int main(int argc, char** argv){
         calcStdDev(variance);
 
         // open output file
-        outputFile.open("LenaKhalidi.out", ofstream::app); //| ofstream::trunc);
+        outputFile.open("LenaKhalidi.out", ofstream::app);
 
         // print results to output file
         outputFile << "Lena Khalidi" << endl;
